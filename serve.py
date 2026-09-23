@@ -32,6 +32,30 @@ class ArcadeHandler(SimpleHTTPRequestHandler):
             return os.path.join(HOME, parts[0], *parts[1:])
         return os.path.join(ROOT, *parts)
 
+    def do_GET(self):
+        """游戏首页即时注入「返回大全」，不落盘 —— 那几个目录是真实的游戏仓库，不能改。"""
+        clean = unquote(self.path.split('?', 1)[0].split('#', 1)[0])
+        parts = [p for p in posixpath.normpath(clean).split('/') if p and p not in ('.', '..')]
+        is_game_home = (parts and parts[0] in GAMES
+                        and (clean.endswith('/') or clean.endswith('/index.html')))
+        if is_game_home:
+            target = self.translate_path(self.path)
+            if os.path.isdir(target):
+                target = os.path.join(target, 'index.html')
+            if os.path.isfile(target):
+                with open(target, 'rb') as f:
+                    body = f.read()
+                tag = b'<script src="../_back.js" defer></script>'
+                body = (body.replace(b'</body>', tag + b'\n</body>', 1)
+                        if b'</body>' in body else body + tag)
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+        super().do_GET()
+
     def end_headers(self):
         # 不让浏览器缓存，否则改完代码刷新还是旧版（这个坑在 holdem 上踩过）
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')

@@ -35,6 +35,21 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: 给各游戏注入「返回大全」入口
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          tag = '<script src="../_back.js" defer></script>'
+          for g in ['holdem', 'war-economy', 'balance-of-power', 'covers']:
+              f = pathlib.Path(g) / 'index.html'
+              s = f.read_text(encoding='utf-8')
+              if tag in s:
+                  continue
+              s = s.replace('</body>', tag + '\n</body>', 1) if '</body>' in s else s + tag
+              f.write_text(s, encoding='utf-8')
+              print('注入', f)
+          PY
+
       - name: 检查门户里的链接都有对应目录
         run: |
           set -euo pipefail
