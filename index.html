@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<title>小游戏大全</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  background:#0b1014;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(80,180,140,.13), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 110%, rgba(120,110,224,.10), transparent 60%);
+  color:#e6ede8;
+  font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:960px;margin:0 auto;padding:28px 18px 56px}
+
+header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.lang{
+  margin-left:auto;background:rgba(255,255,255,.07);color:#cfe0d4;
+  border:1px solid rgba(255,255,255,.1);border-radius:9px;
+  padding:7px 12px;font:inherit;font-size:12px;letter-spacing:1px;cursor:pointer;
+}
+.lang:active{transform:translateY(1px)}
+
+h1{
+  margin:14px 0 6px;font-size:clamp(30px,6vw,44px);letter-spacing:8px;
+  background:linear-gradient(180deg,#f7e7a8,#c69b3d);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.sub{margin:0 0 30px;font-size:12px;letter-spacing:3px;color:#7d9488}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:16px}
+
+.card{
+  display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  background:rgba(14,24,20,.72);
+  border:1px solid rgba(255,255,255,.09);border-radius:16px;
+  overflow:hidden;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.card:hover{transform:translateY(-3px);border-color:var(--ac);box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.card:active{transform:translateY(-1px)}
+
+.art{
+  height:116px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--ac) 28%,#0d1512),#0d1512);
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.art svg{width:62px;height:62px;display:block}
+
+.body{padding:15px 17px 17px;flex:1;display:flex;flex-direction:column}
+.name{font-size:17px;font-weight:700;letter-spacing:1px;margin-bottom:2px}
+.en{font-size:11px;letter-spacing:2px;color:var(--ac);text-transform:uppercase;margin-bottom:9px}
+.desc{font-size:12.5px;line-height:1.75;color:#9db0a4;margin:0 0 14px;flex:1}
+.go{
+  align-self:flex-start;font-size:12px;letter-spacing:2px;color:#0e1512;font-weight:700;
+  background:var(--ac);border-radius:8px;padding:8px 15px;
+}
+
+footer{margin-top:34px;text-align:center;font-size:11.5px;color:#61756a;line-height:2}
+footer a{color:#86a294;text-decoration:none;border-bottom:1px solid rgba(134,162,148,.3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><button class="lang" id="lang">中 / EN</button></header>
+  <h1 id="title">小游戏大全</h1>
+  <p class="sub" id="sub">ARCADE · 四个浏览器小游戏，点开就玩</p>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <span id="foot"></span><br>
+    <a href="https://github.com/SeedTang" target="_blank" rel="noopener">github.com/SeedTang</a>
+  </footer>
+</div>
+
+<script>
+/* 每个游戏对应一个同名子目录：线上由 Actions 在构建时拉取，本地由 serve.py 映射到相邻仓库。
+   两边都用相对链接，所以不用区分环境。 */
+const GAMES = [
+  {
+    dir: 'holdem', ac: '#3fa06a',
+    zh: '德州扑克', en: "Texas Hold'em",
+    dzh: '6 人桌或 8 人桌，对手是 12 个性格固定的 AI —— 有人埋伏、有人乱冲、有人只按赔率办事。德州和奥马哈两种玩法，真实规则（边池、最小加注、底池限注）。',
+    den: 'Six or eight seats against twelve fixed-personality AI opponents. Hold’em and Omaha, real rules — side pots, min-raise, pot limit.',
+    svg: '<g fill="none" stroke="#3fa06a" stroke-width="5"><rect x="12" y="20" width="34" height="46" rx="5" transform="rotate(-12 29 43)"/><rect x="42" y="20" width="34" height="46" rx="5" transform="rotate(10 59 43)"/></g><path d="M59 34c-5 6-9 9-9 13a5 5 0 0 0 9 3 5 5 0 0 0 9-3c0-4-4-7-9-13z" fill="#3fa06a"/>'
+  },
+  {
+    dir: 'war-economy', ac: '#c9873a',
+    zh: '战争经济', en: 'War Economy',
+    dzh: '二战经济动员主题的 roguelike 卡牌构筑。打仗要花钱，赢下来的代价才是真正的题目。七个国家、无尽模式、18 种语言。',
+    den: 'A roguelike deckbuilder about the price of winning a war — WWII economic mobilization as a teaching machine. Seven nations, endless mode, 18 languages.',
+    svg: '<g fill="#c9873a"><rect x="14" y="44" width="52" height="16" rx="4"/><rect x="26" y="32" width="26" height="14" rx="3"/><rect x="50" y="35" width="24" height="5" rx="2.5"/></g><g fill="none" stroke="#c9873a" stroke-width="4"><circle cx="24" cy="64" r="6"/><circle cx="40" cy="64" r="6"/><circle cx="56" cy="64" r="6"/></g>'
+  },
+  {
+    dir: 'balance-of-power', ac: '#7b6ee0',
+    zh: '势力均衡', en: 'Balance of Power',
+    dzh: '三个联盟，一个赢家。地缘政治最古老的一条规矩：谁冒头，谁挨打。跑得太快就会被另外两家一起盯上。',
+    den: 'Three alliances, one winner. The oldest rule in geopolitics: whoever gets ahead gets ganged up on.',
+    svg: '<g fill="none" stroke="#7b6ee0" stroke-width="4"><path d="M40 16 L66 62 L14 62 Z"/></g><circle cx="40" cy="16" r="10" fill="#7b6ee0"/><circle cx="66" cy="62" r="7" fill="#7b6ee0" opacity=".65"/><circle cx="14" cy="62" r="7" fill="#7b6ee0" opacity=".65"/>'
+  },
+  {
+    dir: 'covers', ac: '#d9644a',
+    zh: '满座', en: 'Covers',
+    dzh: '经营一家餐厅的前厅，十个晚上。安排座位、催台或者免单，在翻台率和口碑之间找平衡。',
+    den: 'Run a restaurant floor for ten nights — seat parties, push or comp tables, and balance throughput against reputation.',
+    svg: '<g fill="none" stroke="#d9644a" stroke-width="4.5"><circle cx="40" cy="40" r="24"/><circle cx="40" cy="40" r="13"/></g><g stroke="#d9644a" stroke-width="4.5" stroke-linecap="round"><path d="M16 14v16M70 14v10a5 5 0 0 1-5 5"/></g>'
+  }
+];
+
+const T = {
+  zh: { title:'小游戏大全', sub:'ARCADE · 四个浏览器小游戏，点开就玩', go:'开始游戏',
+        foot:'全部是纯静态页面，无需安装，手机也能玩。' },
+  en: { title:'ARCADE', sub:'FOUR BROWSER GAMES · NOTHING TO INSTALL', go:'PLAY',
+        foot:'All static pages. No install, works on phones too.' }
+};
+
+let lang = (() => { try { return localStorage.getItem('arcade_lang') || 'zh'; } catch(e) { return 'zh'; } })();
+
+function render() {
+  const t = T[lang];
+  document.getElementById('title').textContent = t.title;
+  document.getElementById('sub').textContent = t.sub;
+  document.getElementById('foot').textContent = t.foot;
+  document.getElementById('lang').textContent = lang === 'zh' ? '中 / EN' : 'EN / 中';
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+  document.getElementById('grid').innerHTML = GAMES.map(g => `
+    <a class="card" style="--ac:${g.ac}" href="${g.dir}/">
+      <div class="art"><svg viewBox="0 0 80 80" aria-hidden="true">${g.svg}</svg></div>
+      <div class="body">
+        <div class="name">${lang === 'zh' ? g.zh : g.en}</div>
+        <div class="en">${lang === 'zh' ? g.en : g.zh}</div>
+        <p class="desc">${lang === 'zh' ? g.dzh : g.den}</p>
+        <span class="go">${t.go} ▸</span>
+      </div>
+    </a>`).join('');
+}
+
+document.getElementById('lang').onclick = () => {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  try { localStorage.setItem('arcade_lang', lang); } catch(e) {}
+  render();
+};
+render();
+</script>
+</body>
+</html>

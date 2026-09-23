@@ -1,0 +1,7 @@
+.DS_Store
+
+# 构建时才拉进来的游戏仓库，不进版本库
+/holdem/
+/war-economy/
+/balance-of-power/
+/covers/

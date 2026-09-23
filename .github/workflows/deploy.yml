@@ -1,0 +1,59 @@
+name: 构建并发布小游戏大全
+
+# 游戏各自是独立仓库，这里在构建时把它们拉进来，所以本仓库不存任何游戏代码。
+# 某个游戏更新后想让门户同步：手动触发一次，或者等每天的定时构建。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 拉取各游戏仓库到同名子目录
+        run: |
+          set -euo pipefail
+          for g in holdem war-economy balance-of-power covers; do
+            echo "::group::$g"
+            git clone --depth 1 "https://github.com/${{ github.repository_owner }}/$g.git" "$g"
+            rm -rf "$g/.git"
+            test -f "$g/index.html" || { echo "$g 缺少 index.html"; exit 1; }
+            echo "::endgroup::"
+          done
+
+      - name: 检查门户里的链接都有对应目录
+        run: |
+          set -euo pipefail
+          for g in $(grep -oE "dir: '[^']+'" index.html | cut -d"'" -f2); do
+            test -d "$g" || { echo "门户链接到 $g/，但没有这个目录"; exit 1; }
+            echo "✓ $g"
+          done
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
